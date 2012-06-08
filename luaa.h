@@ -111,8 +111,11 @@ luaA_registerlib(lua_State *L, const char *libname, const luaL_Reg *l)
     /* TODO: this is going to be broken when libname == NULL */
     lua_newtable(L);
     luaL_setfuncs(L, l, 0);
-    lua_pushvalue(L, -1);
-    lua_setglobal(L, libname);
+    if (libname)
+    {
+        lua_pushvalue(L, -1);
+        lua_setglobal(L, libname);
+    }
 #else
     luaL_register(L, libname, l);
 #endif
