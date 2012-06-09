@@ -595,13 +595,13 @@ luaA_init(xdgHandle* xdg)
 
     /* add Lua search paths */
     lua_getglobal(L, "package");
-    if (LUA_TTABLE != lua_type(L, 1))
+    if (LUA_TTABLE != lua_type(L, -1))
     {
         warn("package is not a table");
         return;
     }
-    lua_getfield(L, 1, "path");
-    if (LUA_TSTRING != lua_type(L, 2))
+    lua_getfield(L, -1, "path");
+    if (LUA_TSTRING != lua_type(L, -1))
     {
         warn("package.path is not a string");
         lua_pop(L, 1);
@@ -630,9 +630,9 @@ luaA_init(xdgHandle* xdg)
     lua_pushliteral(L, ";" AWESOME_LUA_LIB_PATH "/?.lua");
     lua_pushliteral(L, ";" AWESOME_LUA_LIB_PATH "/?/init.lua");
     lua_concat(L, 3); /* concatenate with package.path */
-    lua_setfield(L, 1, "path"); /* package.path = "concatenated string" */
+    lua_setfield(L, -2, "path"); /* package.path = "concatenated string" */
 
-    lua_getfield(L, 1, "loaded");
+    lua_getfield(L, -1, "loaded");
 
     lua_pop(L, 2); /* pop "package" and "package.loaded" */
 
