@@ -71,12 +71,18 @@ function graph.draw(_graph, wibox, cr, width, height)
     local max_value = data[_graph].max_value
     local values = data[_graph].values
 
-    local border_width = 0
-    if data[_graph].border_color then
-        border_width = 1
-    end
-
     cr:set_line_width(1)
+
+    -- Draw the background first
+    cr:set_source(color(data[_graph].background_color or "#000000aa"))
+    cr:paint()
+
+    -- Account for the border width
+    cr:save()
+    if data[_graph].border_color then
+        cr:translate(1, 1)
+        width, height = width - 2, height - 2
+    end
 
     -- Draw a stacked graph
     if data[_graph].stack then
@@ -91,27 +97,17 @@ function graph.draw(_graph, wibox, cr, width, height)
             end
         end
 
-        -- Draw the background first
-        cr:rectangle(border_width, border_width,
-                     width - (2 * border_width),
-                     height)
-        cr:set_source(color(data[_graph].background_color or "#000000aa"))
-        cr:fill()
-
-        for i = 0, width - (2 * border_width) do
+        for i = 0, width do
             local rel_i = 0
-            local rel_x = width - border_width - i - 0.5
+            local rel_x = i + 0.5
 
             if data[_graph].stack_colors then
                 for idx, col in ipairs(data[_graph].stack_colors) do
                     local stack_values = values[idx]
                     if stack_values and i < #stack_values then
                         local value = stack_values[#stack_values - i] + rel_i
-
-                        cr:move_to(rel_x, border_width - 0.5 +
-                                          (height - 2 * border_width) * (1 - (rel_i / max_value)))
-                        cr:line_to(rel_x, border_width - 0.5 +
-                                          (height - 2 * border_width) * (1 - (value / max_value)))
+                        cr:move_to(rel_x, height * (1 - (rel_i / max_value)))
+                        cr:line_to(rel_x, height * (1 - (value / max_value)))
                         cr:set_source(color(col or "#ff0000"))
                         cr:stroke()
                         rel_i = value
@@ -128,12 +124,6 @@ function graph.draw(_graph, wibox, cr, width, height)
             end
         end
 
-        cr:rectangle(border_width, border_width,
-                     width - (2 * border_width),
-                     height - (2 * border_width))
-        cr:set_source(color(data[_graph].color or "#ff0000"))
-        cr:fill()
-
         -- Draw the background on no value
         if #values ~= 0 then
             -- Draw reverse
@@ -141,30 +131,24 @@ function graph.draw(_graph, wibox, cr, width, height)
                 local value = values[#values - i]
                 if value >= 0 then
                     value = value / max_value
-                    cr:move_to(width - border_width - i - 0.5,
-                               border_width - 0.5 +
-                                   (height - 2 * border_width) * (1 - value))
-                    cr:line_to(width - border_width - i - 0.5,
-                               border_width - 1)
+                    cr:move_to(i + 0.5, height * (1 - value))
+                    cr:line_to(i + 0.5, height)
                 end
             end
-            cr:set_source(color(data[_graph].background_color or "#000000aa"))
+            cr:set_source(color(data[_graph].color or "#ff0000"))
             cr:stroke()
         end
 
-        -- If we didn't draw values in full length, draw a square
-        -- over the last, left, part to reset everything to 0
-        if #values < width - (2 * border_width) then
-            cr:rectangle(border_width, border_width,
-                         width - (2 * border_width) - #values,
-                         height - (2 * border_width))
-            cr:set_source(color(data[_graph].background_color or "#000000aa"))
-            cr:fill()
-        end
     end
+
+    -- Undo the cr:translate() for the border
+    cr:restore()
 
     -- Draw the border last so that it overlaps already drawn values
     if data[_graph].border_color then
+        -- We decremented these by two above
+        width, height = width + 2, height + 2
+
         -- Draw the border
         cr:rectangle(0.5, 0.5, width - 1, height - 1)
         cr:set_source(color(data[_graph].border_color or "#ffffff"))
@@ -202,7 +186,7 @@ local function add_value(_graph, value, group)
     table.insert(values, value)
 
     local border_width = 0
-    if data[_graph].border then border_width = 2 end
+    if data[_graph].border_color then border_width = 2 end
 
     -- Ensure we never have more data than we can draw
     while #values > data[_graph].width - border_width do
