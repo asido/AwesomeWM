@@ -1,14 +1,14 @@
 -- Standard awesome library
-local awful = require("awful")
+awful = require("awful")
 awful.rules = require("awful.rules")
 require("awful.autofocus")
 -- Widget and layout library
-local wibox = require("wibox")
+wibox = require("wibox")
 -- Theme handling library
-local beautiful = require("beautiful")
+beautiful = require("beautiful")
 -- Notification library
-local naughty = require("naughty")
-local menubar = require("menubar")
+naughty = require("naughty")
+menubar = require("menubar")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -52,7 +52,7 @@ editor_cmd = terminal .. " -e " .. editor
 modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
-local layouts =
+layouts =
 {
     awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -252,7 +252,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "x",
               function ()
                   awful.prompt.run({ prompt = "Run Lua code: " },
-                  mypromptbox[awful.mouse.screen].widget,
+                  mypromptbox[mouse.screen].widget,
                   awful.util.eval, nil,
                   awful.util.getdir("cache") .. "/history_eval")
               end),
