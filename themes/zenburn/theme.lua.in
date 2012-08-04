@@ -8,7 +8,7 @@
 
 -- {{{ Main
 theme = {}
-theme.wallpaper_cmd = { "awsetbg @AWESOME_THEMES_PATH@/zenburn/zenburn-background.png" }
+theme.wallpaper = "@AWESOME_THEMES_PATH@/zenburn/zenburn-background.png"
 -- }}}
 
 -- {{{ Styles

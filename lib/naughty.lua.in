@@ -193,7 +193,7 @@ local function get_offset(screen, position, idx, width, height)
     -- if positioned outside workarea, destroy oldest popup and recalculate
     if v.y + height > ws.y + ws.height or v.y < ws.y then
         idx = idx - 1
-        destroy(notifications[screen][position][1])
+        naughty.destroy(notifications[screen][position][1])
         v = get_offset(screen, position, idx, width, height)
     end
     if not v.idx then v.idx = idx end
@@ -503,7 +503,7 @@ end
 -- Notify
 if capi.dbus then
     capi.dbus.connect_signal("org.freedesktop.Notifications", function (data, appname, replaces_id, icon, title, text, actions, hints, expire)
-    args = { }
+    local args = { }
     if data.member == "Notify" then
         if text ~= "" then
             args.text = text
@@ -561,14 +561,14 @@ if capi.dbus then
             if expire and expire > -1 then
                 args.timeout = expire / 1000
             end
-            local id = notify(args).id
+            local id = naughty.notify(args).id
             return "u", id
         end
         return "u", "0"
     elseif data.member == "CloseNotification" then
         local obj = getById(appname)
         if obj then
-           destroy(obj)
+           naughty.destroy(obj)
         end
     elseif data.member == "GetServerInfo" or data.member == "GetServerInformation" then
         -- name of notification app, name of vender, version
